@@ -1,5 +1,4 @@
 const { User, Thought } = require("../models");
-const { findOneAndUpdate } = require("../models/Thought");
 
 module.exports = {
     getUser(req, res) {
@@ -7,25 +6,23 @@ module.exports = {
             .then((user) => res.json(user))
             .catch((err) => res.status(500).json(err));
     },
-
-    getOneUser(req, res) {
+    getSingleUser(req, res) {
         User.findOne({ _id: req.params.userId })
             .populate("thoughts")
             .populate("friends")
-            .select("-_v")
+            .select("-__v")
             .then((user) =>
                 !user
-                    ? res.status(404)({ message: "No user with that ID" })
-                    : res.json(user))
-
+                    ? res.status(404).json({ message: "No User find with that ID!" })
+                    : res.json(user)
+            )
             .catch((err) => res.status(500).json(err));
     },
-
     createUser(req, res) {
         User.create(req.body)
             .then((user) => res.json(user))
             .catch((err) => {
-                console.log(err)
+                console.log(err);
                 return res.status(500).json(err);
             });
     },
@@ -37,23 +34,21 @@ module.exports = {
         )
             .then((user) =>
                 !user
-                    ? res.status(404).json({ message: "No User with that ID" })
-                    : res.json(user))
-
+                    ? res.status(404).json({ message: "No User find with this ID!" })
+                    : res.json(user)
+            )
             .catch((err) => res.status(500).json(err));
     },
-
     deleteUser(req, res) {
-        User.findOneAndDelete({ _id: req.userId })
+        User.findOneAndDelete({ _id: req.params.userId })
             .then((user) =>
                 !user
-                    ? res.status(404).json({ message: "No User with that ID" })
+                    ? res.status(404).json({ message: "No User find with this ID!" })
                     : Thought.deleteMany({ _id: { $in: user.thoughts } })
             )
-            .then(() => res.json({ message: "User and Thought have been deleted!" }))
-            .catch((err) => res.status(500).json(err))
+            .then(() => res.json({ message: "User and Thought deleted!" }))
+            .catch((err) => res.status(500).json(err));
     },
-
     addFriend(req, res) {
         User.findOneAndUpdate(
             { _id: req.params.userId },
@@ -62,14 +57,13 @@ module.exports = {
         )
             .then((user) =>
                 !user
-                    ? res.status(404)({ message: "No user with that ID" })
-                    : res.json(user))
-
+                    ? res.status(404).json({ message: "No User find with this ID!" })
+                    : res.json(user)
+            )
             .catch((err) => res.status(500).json(err));
     },
-
     deleteFriend(req, res) {
-        User, findOneAndUpdate(
+        User.findOneAndUpdate(
             { _id: req.params.userId },
             { $pull: { friends: req.params.friendId } },
             { new: true }
@@ -77,9 +71,9 @@ module.exports = {
             .then(
                 (user) =>
                     !user
-                        ? res.status(404)({ message: "No user with that ID" })
-                        : res.json(user))
-            .catch((err) => res.status(500).json(err))
+                        ? res.status(404).json({ message: "No User find with this ID!" })
+                        : res.json(user)
+            )
+            .catch((err) => res.status(500).json(err));
     },
-
 };
